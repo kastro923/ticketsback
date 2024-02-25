@@ -19,9 +19,9 @@ public class User implements Serializable {
     private ROLES role;
     private Boolean isEnabled=true;
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(mappedBy="createdBy", cascade = CascadeType.REMOVE)
     private List<Tickets> created;
-    @OneToMany(mappedBy="treatedBy")
+    @OneToMany(mappedBy="treatedBy",  orphanRemoval = true)
     private List<Tickets> treated;
 
     public User() {

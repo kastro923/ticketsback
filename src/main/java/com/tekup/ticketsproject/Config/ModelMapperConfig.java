@@ -19,7 +19,8 @@ public class ModelMapperConfig {
         modelMapper.createTypeMap(Tickets.class, TicketsDTO.class)
                 .addMapping(src -> src.getCreatedBy().getName(), TicketsDTO::setCreatedBy)
                 .addMapping(Tickets::getStatus, TicketsDTO::setStatus)
-                .addMapping(Tickets::getTreatedBy, TicketsDTO::setTreatedBy);
+                .addMapping(Tickets::getTreatedBy, TicketsDTO::setTreatedBy)
+                .addMapping(src->src.getIntervention().getDetails(), TicketsDTO::setResolution);
 
         modelMapper.createTypeMap(UserDTO.class, User.class)
                 .addMapping(UserDTO::getEmail,User::setMail)
@@ -29,6 +30,7 @@ public class ModelMapperConfig {
                 .addMapping(User::getName, UserDTO::setUsername)
                 .addMapping(User::getMail, UserDTO::setEmail)
                 .addMapping(User::getRole,UserDTO::setRole);
+
 
 
         return modelMapper;

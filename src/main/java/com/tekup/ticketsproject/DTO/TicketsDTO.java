@@ -11,6 +11,7 @@ public class TicketsDTO {
     private String createdBy;
     private String status;
     private UserDTO treatedBy;
+    private String resolution;
 
     public TicketsDTO() {
     }
@@ -78,5 +79,13 @@ public class TicketsDTO {
 
     public void setTreatedBy(UserDTO treatedBy) {
         this.treatedBy = treatedBy;
+    }
+
+    public String getResolution() {
+        return resolution;
+    }
+
+    public void setResolution(String resolution) {
+        this.resolution = resolution;
     }
 }

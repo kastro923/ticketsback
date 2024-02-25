@@ -116,6 +116,7 @@ public class TicketServiceImp implements TicketService{
         intervention = interventionRepository.save(intervention);
         tickets.setStatus(STATUS.CLOSED);
         tickets.setIntervention(intervention);
+        tickets.setClosed_at(new Date());
         ticketsRepository.save(tickets);
     }
 }
