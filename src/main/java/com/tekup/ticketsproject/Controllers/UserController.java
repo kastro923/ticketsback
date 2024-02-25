@@ -55,13 +55,18 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
     }
-    @PutMapping("/update")
-    public ResponseEntity<?> editUser(@RequestBody SignUpRequest user){
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> editUser(@RequestBody SignUpRequest user, @PathVariable("id") long id){
         try{
-            this.userService.updateUser(user);
+            this.userService.updateUser(user,id);
             return new ResponseEntity<>(new MessageResponse("User updated successfully"), HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/techList")
+    public ResponseEntity<?> techList(){
+        return new ResponseEntity<>(this.userService.techList(),HttpStatus.OK);
     }
 }

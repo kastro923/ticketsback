@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,8 +67,8 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public void updateUser(SignUpRequest user) throws Exception {
-        User dbUser = this.userRepository.findByNameOrMail(user.getEmail()).orElse(null);
+    public void updateUser(SignUpRequest user,long id) throws Exception {
+        User dbUser = this.userRepository.findById(id).orElse(null);
         if (dbUser == null) {
             throw new Exception("User not found. Invalid mail");
         }
@@ -81,5 +82,12 @@ public class UserServiceImp implements UserService {
             dbUser.setName(user.getUsername());
         }
         this.userRepository.save(dbUser);
+    }
+
+
+    @Override
+    public List<UserDTO> techList() {
+        var users = this.userRepository.findByRole(ROLES.TECHNICIEN);
+        return users.stream().map(x->this.modelMapper.map(x,UserDTO.class)).collect(Collectors.toList());
     }
 }

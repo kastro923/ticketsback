@@ -85,6 +85,16 @@ public class TicketController {
         }
 
     }
+
+    @PutMapping("/treat/{id}")
+    public ResponseEntity<?> treatTicket(@PathVariable("id") long id, @RequestBody String treatement){
+        try{
+            this.ticketService.treatTicket(treatement,id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 /*
 
     @GetMapping("/tickets/{id}")

@@ -4,8 +4,10 @@ package com.tekup.ticketsproject.Services;
 import com.tekup.ticketsproject.DTO.TicketsDTO;
 import com.tekup.ticketsproject.Entities.Enum.ROLES;
 import com.tekup.ticketsproject.Entities.Enum.STATUS;
+import com.tekup.ticketsproject.Entities.Intervention;
 import com.tekup.ticketsproject.Entities.Tickets;
 import com.tekup.ticketsproject.Entities.User;
+import com.tekup.ticketsproject.Repositories.InterventionRepository;
 import com.tekup.ticketsproject.Repositories.TicketsRepository;
 import com.tekup.ticketsproject.Repositories.UserRepository;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,13 +26,15 @@ public class TicketServiceImp implements TicketService{
 
     TicketsRepository ticketsRepository;
     UserRepository userRepository;
+    InterventionRepository interventionRepository;
     ModelMapper modelMapper;
 
 
-    public TicketServiceImp(TicketsRepository ticketsRepository, UserRepository userRepository ,ModelMapper modelMapper) {
+    public TicketServiceImp(TicketsRepository ticketsRepository, UserRepository userRepository, InterventionRepository interventionRepository ,ModelMapper modelMapper) {
         this.ticketsRepository = ticketsRepository;
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.interventionRepository = interventionRepository;
     }
 
     @Override
@@ -38,15 +43,19 @@ public class TicketServiceImp implements TicketService{
         if (user == null){
             throw new Exception("Invalid JWT");
         }
+        List<Tickets> tickets=new ArrayList<>();
         switch (user.getRole()){
             case ADMIN:
-                return this.ticketsRepository.findAll().stream().map((element) -> modelMapper.map(element, TicketsDTO.class)).collect(Collectors.toList());
+                tickets = this.ticketsRepository.findAll();
+                break;
             case EMPLOYEE:
-                return this.ticketsRepository.findByCreatedBy(user).stream().map((element) -> modelMapper.map(element, TicketsDTO.class)).collect(Collectors.toList());
+                tickets =this.ticketsRepository.findByCreatedBy(user);
+                break;
             case TECHNICIEN:
-                return this.ticketsRepository.findByTreatedBy(user).stream().map((element) -> modelMapper.map(element, TicketsDTO.class)).collect(Collectors.toList());
+                tickets =this.ticketsRepository.findByTreatedBy(user);
+                break;
         }
-        return null;
+        return tickets.stream().map(x->this.modelMapper.map(x,TicketsDTO.class)).collect(Collectors.toList());
     }
 
     @Override
@@ -83,8 +92,30 @@ public class TicketServiceImp implements TicketService{
         if (StringUtils.isNotEmpty(ticketsDTO.getStatus())){
             ticket.setStatus(STATUS.valueOf(ticketsDTO.getStatus()));
         }
-
+        if (ticketsDTO.getTreatedBy() != null && ticketsDTO.getTreatedBy().getId() != null && ticket.getTreatedBy() == null){
+            User tech = this.userRepository.findById(ticketsDTO.getTreatedBy().getId()).orElse(null);
+            if (tech != null){
+                ticket.setTreatedBy(tech);
+                ticket.setStatus(STATUS.INPROGRESS);
+            }
+        }
         ticket = this.ticketsRepository.save(ticket);
         return this.modelMapper.map(ticket,TicketsDTO.class);
+    }
+
+    @Override
+    public void treatTicket(String message, long id) throws Exception {
+        Tickets tickets = this.ticketsRepository.findById(id).orElse(null);
+        if (tickets == null){
+            throw new Exception("ticket not found");
+        }
+        Intervention intervention = new Intervention();
+        intervention.setTicket(tickets);
+        intervention.setDate(new Date());
+        intervention.setDetails(message);
+        intervention = interventionRepository.save(intervention);
+        tickets.setStatus(STATUS.CLOSED);
+        tickets.setIntervention(intervention);
+        ticketsRepository.save(tickets);
     }
 }

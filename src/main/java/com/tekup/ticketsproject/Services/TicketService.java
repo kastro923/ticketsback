@@ -14,4 +14,5 @@ public interface TicketService {
     void deleteTicket(Long id);
 
     TicketsDTO editTicket(TicketsDTO ticketsDTO,long id) throws Exception;
+    void treatTicket(String message,long id)throws Exception;
 }

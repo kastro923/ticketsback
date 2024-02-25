@@ -10,7 +10,7 @@ public class TicketsDTO {
     private Date created_at;
     private String createdBy;
     private String status;
-
+    private UserDTO treatedBy;
 
     public TicketsDTO() {
     }
@@ -70,5 +70,13 @@ public class TicketsDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public UserDTO getTreatedBy() {
+        return treatedBy;
+    }
+
+    public void setTreatedBy(UserDTO treatedBy) {
+        this.treatedBy = treatedBy;
     }
 }
